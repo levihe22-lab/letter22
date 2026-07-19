@@ -1057,6 +1057,7 @@ dom.btnMenu.addEventListener('click', () => {
     const vis = dom.menuDropdown.style.display === 'block';
     dom.menuDropdown.style.display = vis ? 'none' : 'block';
 });
+if (dom.btnBack) dom.btnBack.addEventListener('click', backToSearch);
 dom.menuDate.addEventListener('click', () => {
     dom.menuDropdown.style.display = 'none';
     showDatePanel();
