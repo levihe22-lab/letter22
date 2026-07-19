@@ -1,0 +1,29 @@
+# Data files (imported by user, never committed)
+data/
+
+# Personal avatar images
+avatar_me.*
+avatar_even.*
+!avatar_placeholder.*
+
+# Private chat data packages
+*.wcv
+*.wcv.partial
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Certificates
+cert.pem
+key.pem

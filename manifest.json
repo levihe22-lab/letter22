@@ -1,0 +1,24 @@
+{
+  "name": "微信聊天记录查看器",
+  "short_name": "聊天记录",
+  "description": "微信聊天记录离线查看器 — 数据仅保存在本机",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ededed",
+  "theme_color": "#07c160",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
