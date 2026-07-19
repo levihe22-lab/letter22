@@ -789,6 +789,18 @@ body {
 }
 .search-result-item:hover { background: #f0f8f0; }
 .search-result-item:last-child { border-bottom: none; }
+n#search-back-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f7f7f7;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: #576b95;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+#search-back-bar:hover { background: #eee; }
 
 .sr-header {
     display: flex;

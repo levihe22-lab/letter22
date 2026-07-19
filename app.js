@@ -681,11 +681,26 @@ function renderSearchPanel() {
 
 function hideSearchPanel() { dom.searchPanel.style.display = 'none'; }
 
+function showSearchPanel() {
+    dom.searchPanel.style.display = 'flex';
+    if (dom.searchPanelInput) dom.searchPanelInput.focus();
+}
+
 async function jumpToSearchResult(resultIndex) {
     const result = state.searchResults[resultIndex];
     if (!result) return;
 
+    // Save search state for back navigation
+    state._savedSearch = {
+        query: state.searchQuery,
+        results: state.searchResults,
+    };
+
     hideSearchPanel();
+
+    // Show back-to-search bar
+    const backBar = document.getElementById('search-back-bar');
+    if (backBar) backBar.style.display = 'flex';
 
     // Load the page containing this result
     const targetPage = result.page;
@@ -694,7 +709,7 @@ async function jumpToSearchResult(resultIndex) {
     state.messages = [];
     state.currentPage = targetPage;
     state.dateJumped = null;
-    state.searchQuery = state.searchQuery; // keep search highlights
+    // Keep search query for highlights but don't re-search
 
     try {
         const data = await api(`/api/messages/${state.currentContact.id}?page=${targetPage}&size=50`);
@@ -713,6 +728,68 @@ async function jumpToSearchResult(resultIndex) {
             }
         });
     } catch (e) { console.error('Jump to search result failed:', e); }
+}
+
+function backToSearch() {
+    const backBar = document.getElementById('search-back-bar');
+    if (backBar) backBar.style.display = 'none';
+
+    if (state._savedSearch) {
+        state.searchQuery = state._savedSearch.query;
+        state.searchResults = state._savedSearch.results;
+        state._savedSearch = null;
+        // Restore search results in panel
+        if (state.searchResults.length > 0) {
+            dom.searchResultTitle.textContent = `"${state.searchQuery}" (${state.searchResults.length}条)`;
+            renderSearchResults();
+            showSearchPanel();
+        } else {
+            // Clean slate search panel
+            dom.searchResultTitle.textContent = '';
+            dom.searchList.innerHTML = '';
+            showSearchPanel();
+        }
+    } else {
+        clearSearch();
+    }
+}
+
+// Separate function to render just the search result list (for back navigation)
+function renderSearchResults() {
+    if (!state.searchQuery || state.searchResults.length === 0) {
+        dom.searchList.innerHTML = '<div class="search-empty">未找到匹配的消息</div>';
+        return;
+    }
+    const query = state.searchQuery;
+    let html = '';
+    state.searchResults.forEach((r, i) => {
+        const m = r.msg;
+        const time = formatDateTime(m.timestamp);
+        const myName = state.myName || '我';
+        const contactName = state.currentContact?.name || state.currentContact?.remark || 'Ta';
+        const sender = m.isSender ? myName : contactName;
+        const senderCls = m.isSender ? 'me' : 'contact';
+        let content = (m.content || '').substring(0, 60);
+        if ((m.content || '').length > 60) content += '...';
+        if (!content) {
+            if (m.type === 3) content = '[图片]';
+            else if (m.type === 43) content = '[视频]';
+            else if (m.type === 47) content = '[表情]';
+            else if (m.type === 34) content = '[语音]';
+            else content = '[消息]';
+        }
+        html += `<div class="search-result-item" data-si="${i}">
+            <div class="sr-header">
+                <span class="sr-time">${time}</span>
+                <span class="sr-sender ${senderCls}">${sender}</span>
+            </div>
+            <div class="sr-content">${highlightText(content, query)}</div>
+        </div>`;
+    });
+    dom.searchList.innerHTML = html;
+    dom.searchList.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => jumpToSearchResult(parseInt(item.dataset.si)));
+    });
 }
 
 // ═══════════════════════════════════════════
