@@ -89,6 +89,10 @@
 
         var path = decodeURIComponent(url.pathname.replace(/^\//, ''));
 
+        // Strip GitHub Pages base path: "letter22/data/..." → "data/..."
+        var di = path.indexOf('data/');
+        if (di > 0) path = path.substring(di);
+
         // /data/* → IndexedDB
         if (path.startsWith('data/')) {
             return getFile(path).then(function(file) {
@@ -109,10 +113,12 @@
         }
 
         // Avatar files → IndexedDB or placeholder
-        if (path === 'avatar_me.jpg' || path === 'avatar_contact.jpg' || path === 'avatar_even.jpg') {
-            return getFile(path).then(function(file) {
-                if (!file && path === 'avatar_even.jpg') return getFile('avatar_contact.jpg');
-                if (!file && path === 'avatar_contact.jpg') return getFile('avatar_even.jpg');
+        // Handle both root and subdirectory paths
+        var avName = path.split('/').pop();
+        if (avName === 'avatar_me.jpg' || avName === 'avatar_contact.jpg' || avName === 'avatar_even.jpg') {
+            return getFile(avName).then(function(file) {
+                if (!file && avName === 'avatar_even.jpg') return getFile('avatar_contact.jpg');
+                if (!file && avName === 'avatar_contact.jpg') return getFile('avatar_even.jpg');
                 if (file) {
                     return new Response(file.data, {
                         status: 200,
@@ -120,7 +126,7 @@
                     });
                 }
                 // Placeholder SVG
-                var isMe = path === 'avatar_me.jpg';
+                var isMe = avName === 'avatar_me.jpg';
                 var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">' +
                     '<rect width="120" height="120" fill="' + (isMe ? '#07c160' : '#576b95') + '" rx="8"/>' +
                     '<text x="60" y="72" text-anchor="middle" font-size="48" font-family="sans-serif" fill="white">' + (isMe ? '我' : 'Ta') + '</text></svg>';
@@ -129,8 +135,9 @@
         }
 
         // /api/media/* → IndexedDB
-        if (path.startsWith('api/media/')) {
-            var mediaPath = path.replace('api/media/', '');
+        var ai = path.indexOf('api/media/');
+        if (ai >= 0) {
+            var mediaPath = path.substring(ai + 'api/media/'.length);
             return getFile('data/media/' + mediaPath).then(function(file) {
                 if (file) return new Response(file.data, { status: 200, headers: { 'Content-Type': file.mime || mimeType(mediaPath) } });
                 return getFile(mediaPath).then(function(f2) {
