@@ -255,8 +255,8 @@
             if (!f) return;
             setProgress(0, 1);
             importZip(f).then(function(count) {
-                setStatus('导入成功 ' + count + ' 个文件，正在加载...');
-                setTimeout(function() { hideImport(); }, 800);
+                setStatus('导入成功 ' + count + ' 个文件，即将刷新...');
+                setTimeout(function() { location.reload(); }, 600);
             }).catch(function(e) {
                 setStatus('导入失败: ' + (e.message || '未知错误'), true);
             });
@@ -268,8 +268,8 @@
             if (!files.length) return;
             setProgress(0, files.length);
             importFolder(files).then(function(count) {
-                setStatus('导入成功 ' + count + ' 个文件，正在加载...');
-                setTimeout(function() { hideImport(); }, 800);
+                setStatus('导入成功 ' + count + ' 个文件，即将刷新...');
+                setTimeout(function() { location.reload(); }, 600);
             }).catch(function(e) {
                 setStatus('导入失败: ' + (e.message || '未知错误'), true);
             });
@@ -286,8 +286,8 @@
             if (f.name.toLowerCase().endsWith('.zip') || f.type === 'application/zip') {
                 setProgress(0, 1);
                 importZip(f).then(function(count) {
-                    setStatus('导入成功 ' + count + ' 个文件，正在加载...');
-                    setTimeout(function() { hideImport(); }, 800);
+                    setStatus('导入成功 ' + count + ' 个文件，即将刷新...');
+                    setTimeout(function() { location.reload(); }, 600);
                 }).catch(function(e) {
                     setStatus('导入失败: ' + (e.message || '未知错误'), true);
                 });
