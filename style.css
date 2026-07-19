@@ -68,6 +68,10 @@ body {
 #topbar-spacer { display: none; }
 
 #btn-back {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 36px; height: 32px;
     border: none;
     background: transparent;
@@ -75,7 +79,6 @@ body {
     color: #333;
     cursor: pointer;
     padding: 0;
-    flex-shrink: 0;
 }
 #btn-back:hover { color: #07c160; }
 

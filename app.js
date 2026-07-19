@@ -1018,7 +1018,10 @@ async function loadMoreDateJumped() {
         const filtered = data.messages.filter(m => m.timestamp >= dayStart && m.timestamp < dayEnd);
 
         if (filtered.length === 0) {
-            state.hasMore = false;
+            // No more messages for this date — load full page and clear date jump
+            state.messages = [...state.messages, ...data.messages];
+            state.dateJumped = null;
+            state.hasMore = nextPage > 1;
         } else {
             state.messages = [...state.messages, ...filtered];
             state.hasMore = nextPage > 1;
@@ -1130,6 +1133,13 @@ async function loadNewerMessages() {
 let scrollDebounce = false;
 dom.chatArea.addEventListener('scroll', () => {
     if (state.dateJumped) {
+        // Scroll up: load older messages (higher page = more of same day)
+        if (dom.chatArea.scrollTop < 120 && state.hasMore && !state.isLoading && !scrollDebounce) {
+            scrollDebounce = true;
+            setTimeout(() => { scrollDebounce = false; }, 500);
+            loadMoreDateJumpedUp();
+        }
+        // Scroll down: load newer messages (lower page)
         const nearBottom = dom.chatArea.scrollHeight - dom.chatArea.scrollTop - dom.chatArea.clientHeight < 120;
         if (nearBottom && state.hasMore && !state.isLoading && !scrollDebounce) {
             scrollDebounce = true;
@@ -1137,10 +1147,18 @@ dom.chatArea.addEventListener('scroll', () => {
             loadMoreDateJumped();
         }
     } else {
+        // Scroll up: load older messages (higher page)
         if (dom.chatArea.scrollTop < 120 && state.hasMore && !state.isLoading && !scrollDebounce) {
             scrollDebounce = true;
             setTimeout(() => { scrollDebounce = false; }, 500);
             loadMessages(state.currentContact.id, state.currentPage + 1, true);
+        }
+        // Scroll down: load newer messages (lower page)
+        const nb = dom.chatArea.scrollHeight - dom.chatArea.scrollTop - dom.chatArea.clientHeight < 120;
+        if (nb && state.currentPage > 1 && !state.isLoading && !scrollDebounce) {
+            scrollDebounce = true;
+            setTimeout(() => { scrollDebounce = false; }, 500);
+            loadNewerMessages();
         }
     }
 });
