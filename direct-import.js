@@ -512,6 +512,10 @@
     //  启动
     // ═══════════════════════════════════════════
 
+    // Immediately prevent vault.js from initializing (it checks this flag).
+    // Will be cleared later if WCV2 mode selected or direct data already loaded.
+    window.__directImportShowing = true;
+
     // Always install the fetch bridge synchronously, before app.js runs.
     // The bridge checks IndexedDB on each request; if data isn't loaded yet,
     // it returns empty responses. This prevents stale network requests.
@@ -523,6 +527,7 @@
         if (wcvMode === '1') {
             sessionStorage.removeItem('wcv-mode');
             // Let vault.js handle initialization
+            window.__directImportShowing = false;
             window.__directImportActive = false;
             return;
         }
@@ -531,9 +536,9 @@
             const dataExists = await hasData();
 
             if (dataExists) {
-                // Data already imported → signal vault.js to skip
+                // Data already imported → signal vault.js to skip, hide import overlay
+                window.__directImportShowing = false;
                 window.__directImportActive = true;
-                // Install UI for re-import functionality (accessible from menu)
                 installUI();
                 return;
             }
@@ -541,14 +546,10 @@
             console.warn('direct-import: IndexedDB check failed:', e);
         }
 
-        // No data yet → show import UI
+        // No data yet → show import UI (__directImportShowing already true)
         window.__directImportActive = false;
         installUI();
         showOverlay();
-
-        // Don't let vault.js block the page — set a flag
-        // vault.js checks this and skips its own overlay
-        window.__directImportShowing = true;
     }
 
     // Expose for menu access
