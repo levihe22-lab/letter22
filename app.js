@@ -363,7 +363,7 @@ function createMessageRow(msg, index, isSearchMatch) {
     const avatar = document.createElement('img');
     avatar.className = 'msg-avatar';
     avatar.src = msg.isSender ? 'avatar_me.jpg' : 'avatar_even.jpg';
-    avatar.alt = msg.isSender ? 'hlw' : (state.currentContact?.name || 'Ta');
+    avatar.alt = msg.isSender ? (state.myName || '我') : (state.currentContact?.name || state.currentContact?.remark || 'Ta');
     row.appendChild(avatar);
 
     const bubble = document.createElement('div');
@@ -619,7 +619,9 @@ function renderSearchPanel() {
     state.searchResults.forEach((r, i) => {
         const m = r.msg;
         const time = formatTime(m.timestamp);
-        const sender = m.isSender ? 'hlw' : 'even';
+        const myName = state.myName || '我';
+        const contactName = state.currentContact?.name || state.currentContact?.remark || 'Ta';
+        const sender = m.isSender ? myName : contactName;
         const senderCls = m.isSender ? 'me' : 'even';
         let content = (m.content || '').substring(0, 60);
         if ((m.content || '').length > 60) content += '...';
@@ -1059,9 +1061,21 @@ dom.videoOverlay.addEventListener('click', (e) => {
 // ═══════════════════════════════════════════
 
 async function init() {
+    // Load user config (myName)
+    try {
+        const res = await fetch('/data/config.json');
+        if (res.ok) {
+            const cfg = await res.json();
+            state.myName = cfg.myName || '我';
+        }
+    } catch (e) { /* config optional */ }
+
     await loadContacts();
     if (state.contacts.length > 0) {
         state.currentContact = state.contacts[0];
+        // Update topbar to show contact name
+        const contactName = state.currentContact.remark || state.currentContact.name || '联系人';
+        document.querySelector('#topbar-name').textContent = contactName;
         clearSearch();
         await loadMessages(state.contacts[0].id, 1, false);
         await loadAvailableDates();

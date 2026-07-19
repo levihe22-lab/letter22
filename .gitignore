@@ -9,6 +9,8 @@ avatar_even.*
 # Private chat data packages
 *.wcv
 *.wcv.partial
+*.zip
+config.json
 
 # macOS
 .DS_Store
