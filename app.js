@@ -732,18 +732,22 @@ async function jumpToSearchResult(resultIndex) {
 }
 
 function backToSearch() {
-    dom.btnBack.style.display = 'none';
-    dom.btnMenu.style.display = '';
+    // Hide back button, show menu
+    if (dom.btnBack) dom.btnBack.style.display = 'none';
+    if (dom.btnMenu) dom.btnMenu.style.display = '';
+    
     if (state._savedSearch) {
         state.searchQuery = state._savedSearch.query;
         state.searchResults = state._savedSearch.results;
         state._savedSearch = null;
+        // Restore panel content
+        if (dom.searchPanelInput) dom.searchPanelInput.value = state.searchQuery;
+        dom.searchResultTitle.textContent = '"' + state.searchQuery + '" (' + state.searchResults.length + '条)';
         renderSearchResults();
-        dom.searchResultTitle.textContent = `"${state.searchQuery}" (${state.searchResults.length}条)`;
-        showSearchPanel();
-    } else {
-        clearSearch();
     }
+    // Show search panel
+    dom.searchPanel.style.display = 'flex';
+    if (dom.searchPanelInput) setTimeout(function() { dom.searchPanelInput.focus(); }, 100);
 }
 
 // Separate function to render just the search result list (for back navigation)
