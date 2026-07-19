@@ -794,7 +794,7 @@ body {
     color: white;
 }
 .sr-sender.me { background: #576b95; }
-.sr-sender.even { background: #95c5a0; }
+.sr-sender.contact { background: #95c5a0; }
 
 .sr-content {
     font-size: 14px;

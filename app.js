@@ -362,7 +362,7 @@ function createMessageRow(msg, index, isSearchMatch) {
 
     const avatar = document.createElement('img');
     avatar.className = 'msg-avatar';
-    avatar.src = msg.isSender ? 'avatar_me.jpg' : 'avatar_even.jpg';
+    avatar.src = msg.isSender ? 'avatar_me.jpg' : 'avatar_contact.jpg';
     avatar.alt = msg.isSender ? (state.myName || '我') : (state.currentContact?.name || state.currentContact?.remark || 'Ta');
     row.appendChild(avatar);
 
@@ -622,7 +622,7 @@ function renderSearchPanel() {
         const myName = state.myName || '我';
         const contactName = state.currentContact?.name || state.currentContact?.remark || 'Ta';
         const sender = m.isSender ? myName : contactName;
-        const senderCls = m.isSender ? 'me' : 'even';
+        const senderCls = m.isSender ? 'me' : 'contact';
         let content = (m.content || '').substring(0, 60);
         if ((m.content || '').length > 60) content += '...';
         if (!content) {

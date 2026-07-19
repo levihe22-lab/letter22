@@ -38,7 +38,7 @@ self.addEventListener('fetch', (event) => {
     // Never cache data paths — they come from IndexedDB via direct-import.js or vault.js
     if (url.pathname.startsWith('/data/')) return;
     // Never cache avatar paths — they also come from IndexedDB
-    if (url.pathname === '/avatar_me.jpg' || url.pathname === '/avatar_even.jpg') return;
+    if (url.pathname === '/avatar_me.jpg' || url.pathname === '/avatar_contact.jpg' || url.pathname === '/avatar_even.jpg') return;
 
     // For same-origin and CDN requests, try cache first, then network
     if (url.origin === self.location.origin || url.hostname === 'cdn.jsdelivr.net') {

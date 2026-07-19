@@ -146,8 +146,16 @@
             }
 
             // Handle avatar files — serve from IndexedDB or return placeholder SVG
-            if (pathname === '/avatar_me.jpg' || pathname === '/avatar_even.jpg') {
-                const file = await getFile(pathname.replace(/^\//, ''));
+            // Supports both legacy 'avatar_even.jpg' and new 'avatar_contact.jpg'
+            if (pathname === '/avatar_me.jpg' || pathname === '/avatar_contact.jpg' || pathname === '/avatar_even.jpg') {
+                let file = await getFile(pathname.replace(/^\//, ''));
+                // Also try the alternative name
+                if (!file && pathname === '/avatar_even.jpg') {
+                    file = await getFile('avatar_contact.jpg');
+                }
+                if (!file && pathname === '/avatar_contact.jpg') {
+                    file = await getFile('avatar_even.jpg');
+                }
                 if (file) {
                     return new Response(file.data, {
                         status: 200,
@@ -237,7 +245,7 @@
             if (!normalizedPath.startsWith('data/')) {
                 // Check if it's an avatar or root file
                 const filename = normalizedPath.split('/').pop();
-                if (filename === 'avatar_me.jpg' || filename === 'avatar_even.jpg' ||
+                if (filename === 'avatar_me.jpg' || filename === 'avatar_contact.jpg' || filename === 'avatar_even.jpg' ||
                     filename === 'icon-192.png' || filename === 'icon-512.png') {
                     normalizedPath = filename;
                 } else if (normalizedPath.includes('/data/')) {
@@ -289,7 +297,7 @@
                     path = 'data/search_index.json';
                 } else if (name.startsWith('page_') && name.endsWith('.json')) {
                     path = 'data/messages/' + path;
-                } else if (name === 'avatar_me.jpg' || name === 'avatar_even.jpg') {
+                } else if (name === 'avatar_me.jpg' || name === 'avatar_contact.jpg' || name === 'avatar_even.jpg') {
                     // keep as-is
                 }
             }
