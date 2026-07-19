@@ -78,15 +78,31 @@ function formatDate(ts) {
     const now = new Date();
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    const dateStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
     if (d.toDateString() === now.toDateString()) return '今天';
-    if (d.toDateString() === yesterday.toDateString()) return '昨天';
-    return dateStr;
+    if (d.toDateString() === yesterday.toDateString()) return '昨天 ' + dateStr;
+    // Show year only for different years
+    const thisYear = now.getFullYear();
+    if (d.getFullYear() !== thisYear) return dateStr;
+    return `${d.getMonth()+1}月${d.getDate()}日`;
 }
 
 function formatTime(ts) {
     const d = new Date(ts * 1000);
     return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function formatDateTime(ts) {
+    const d = new Date(ts * 1000);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const time = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    const dateStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    if (d.toDateString() === now.toDateString()) return `今天 ${time}`;
+    if (d.toDateString() === yesterday.toDateString()) return `昨天 ${time}`;
+    if (d.getFullYear() !== now.getFullYear()) return `${dateStr} ${time}`;
+    return `${d.getMonth()+1}月${d.getDate()}日 ${time}`;
 }
 
 function escapeHtml(str) {
@@ -322,7 +338,7 @@ function renderMessages() {
         if (showTime && !state.dateJumped) {
             const timeDiv = document.createElement('div');
             timeDiv.className = 'time-divider';
-            timeDiv.innerHTML = `<span>${formatTime(msg.timestamp)}</span>`;
+            timeDiv.innerHTML = `<span>${formatDateTime(msg.timestamp)}</span>`;
             dom.messagesList.appendChild(timeDiv);
         }
         prevTs = msg.timestamp;
@@ -618,7 +634,7 @@ function renderSearchPanel() {
     let html = '';
     state.searchResults.forEach((r, i) => {
         const m = r.msg;
-        const time = formatTime(m.timestamp);
+        const time = formatDateTime(m.timestamp);
         const myName = state.myName || '我';
         const contactName = state.currentContact?.name || state.currentContact?.remark || 'Ta';
         const sender = m.isSender ? myName : contactName;
@@ -1073,9 +1089,9 @@ async function init() {
     await loadContacts();
     if (state.contacts.length > 0) {
         state.currentContact = state.contacts[0];
-        // Update topbar to show contact name
-        const contactName = state.currentContact.remark || state.currentContact.name || '联系人';
-        document.querySelector('#topbar-name').textContent = contactName;
+        // Update topbar — WeChat style: show user's name centered
+        const topName = state.myName || state.contacts[0]?.remark || state.contacts[0]?.name || '聊天记录';
+        document.querySelector('#topbar-name').textContent = topName;
         clearSearch();
         await loadMessages(state.contacts[0].id, 1, false);
         await loadAvailableDates();
