@@ -37,6 +37,7 @@ const $ = (sel) => document.querySelector(sel);
 
 const dom = {
     btnMenu: $('#btn-menu'),
+    btnBack: $('#btn-back'),
     menuDropdown: $('#menu-dropdown'),
     menuDate: $('#menu-date'),
     menuSearch: $('#menu-search'),
@@ -698,9 +699,9 @@ async function jumpToSearchResult(resultIndex) {
 
     hideSearchPanel();
 
-    // Show back-to-search bar
-    const backBar = document.getElementById('search-back-bar');
-    if (backBar) backBar.style.display = 'flex';
+    // Show back button in topbar
+    dom.btnBack.style.display = '';
+    dom.btnMenu.style.display = 'none';
 
     // Load the page containing this result
     const targetPage = result.page;
@@ -731,24 +732,15 @@ async function jumpToSearchResult(resultIndex) {
 }
 
 function backToSearch() {
-    const backBar = document.getElementById('search-back-bar');
-    if (backBar) backBar.style.display = 'none';
-
+    dom.btnBack.style.display = 'none';
+    dom.btnMenu.style.display = '';
     if (state._savedSearch) {
         state.searchQuery = state._savedSearch.query;
         state.searchResults = state._savedSearch.results;
         state._savedSearch = null;
-        // Restore search results in panel
-        if (state.searchResults.length > 0) {
-            dom.searchResultTitle.textContent = `"${state.searchQuery}" (${state.searchResults.length}条)`;
-            renderSearchResults();
-            showSearchPanel();
-        } else {
-            // Clean slate search panel
-            dom.searchResultTitle.textContent = '';
-            dom.searchList.innerHTML = '';
-            showSearchPanel();
-        }
+        renderSearchResults();
+        dom.searchResultTitle.textContent = `"${state.searchQuery}" (${state.searchResults.length}条)`;
+        showSearchPanel();
     } else {
         clearSearch();
     }
@@ -984,6 +976,29 @@ function showDateJumpedHint(dateStr) {
     }, 2000);
 }
 
+async function loadMoreDateJumpedUp() {
+    if (state.isLoading || !state.dateJumped) return;
+    state.isLoading = true;
+    try {
+        const nextPage = state.currentPage + 1;
+        const data = await api(`/api/messages/${state.currentContact.id}?page=${nextPage}&size=50`);
+        state.currentPage = nextPage;
+        const dayStart = new Date(state.dateJumped.date + 'T00:00:00+08:00').getTime() / 1000;
+        const dayEnd = dayStart + 86400;
+        const filtered = data.messages.filter(m => m.timestamp >= dayStart && m.timestamp < dayEnd);
+        if (filtered.length === 0) {
+            state.messages = [...data.messages, ...state.messages];
+            state.dateJumped = null;
+        } else {
+            state.messages = [...filtered, ...state.messages];
+        }
+        state.hasMore = true;
+        renderMessages();
+    } finally {
+        state.isLoading = false;
+    }
+}
+
 async function loadMoreDateJumped() {
     if (state.isLoading || !state.dateJumped) return;
     state.isLoading = true;
@@ -1095,7 +1110,23 @@ dom.btnLoadMore.addEventListener('click', () => {
     }
 });
 
-// 无限滚动
+async function loadNewerMessages() {
+    if (state.isLoading || state.currentPage <= 1) return;
+    state.isLoading = true;
+    try {
+        const prevPage = state.currentPage - 1;
+        const data = await api(`/api/messages/${state.currentContact.id}?page=${prevPage}&size=50`);
+        state.currentPage = prevPage;
+        state.messages = [...state.messages, ...data.messages];
+        state.hasMore = prevPage > 1;
+        renderMessages();
+        updateLoadMore();
+    } finally {
+        state.isLoading = false;
+    }
+}
+
+// 双向无限滚动
 let scrollDebounce = false;
 dom.chatArea.addEventListener('scroll', () => {
     if (state.dateJumped) {

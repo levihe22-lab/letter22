@@ -67,6 +67,18 @@ body {
 
 #topbar-spacer { display: none; }
 
+#btn-back {
+    width: 36px; height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+#btn-back:hover { color: #07c160; }
+
 #btn-menu {
     position: absolute;
     right: 8px;
@@ -800,7 +812,6 @@ n#search-back-bar {
     cursor: pointer;
     flex-shrink: 0;
 }
-#search-back-bar:hover { background: #eee; }
 
 .sr-header {
     display: flex;

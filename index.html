@@ -37,6 +37,7 @@
 <!-- App -->
 <div id="app" style="display:none">
     <div id="topbar">
+        <button id="btn-back" title="返回" style="display:none">←</button>
         <span id="topbar-name">聊天记录</span>
         <div id="topbar-spacer"></div>
         <button id="btn-menu" title="菜单">⋮</button>
@@ -57,9 +58,6 @@
 
     <div id="chat-area">
         <div id="messages-container">
-            <div id="search-back-bar" style="display:none" onclick="backToSearch()">
-                <span>← 返回搜索结果</span>
-            </div>
             <div id="load-more" style="display:none">
                 <button id="btn-load-more">加载更多...</button>
             </div>
