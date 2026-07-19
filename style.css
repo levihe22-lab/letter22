@@ -1042,10 +1042,10 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   数据导入界面 (direct-import.js)
+   数据导入界面 (import.js)
    ═══════════════════════════════════════════════ */
 
-#direct-import-overlay {
+#import-overlay {
     display: flex;
     position: fixed;
     inset: 0;
@@ -1056,7 +1056,7 @@ body {
     padding: 16px;
 }
 
-#direct-import-dialog {
+#import-dialog {
     background: #fff;
     border-radius: 16px;
     padding: 28px 22px;
@@ -1068,31 +1068,23 @@ body {
     overflow-y: auto;
 }
 
-.import-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-}
-
-#import-title {
+#import-dialog h1 {
     font-size: 20px;
     font-weight: 600;
     margin: 0 0 8px;
     color: #111;
 }
 
-#import-description {
+#import-dialog p {
     font-size: 14px;
     color: #888;
     margin: 0 0 20px;
     line-height: 1.6;
 }
 
-#import-description small {
-    font-size: 12px;
-    color: #aaa;
-}
+.import-icon { font-size: 48px; margin-bottom: 8px; }
 
-#direct-import-dropzone {
+#import-dropzone {
     border: 2px dashed #d9d9d9;
     border-radius: 12px;
     padding: 28px 16px;
@@ -1101,76 +1093,59 @@ body {
     cursor: pointer;
 }
 
-#direct-import-dropzone.drag-over {
+#import-dropzone.drag-over {
     border-color: #07c160;
     background: #f0fff4;
 }
 
-.dropzone-icon {
-    font-size: 36px;
-    margin-bottom: 8px;
-}
+.dz-icon { font-size: 36px; margin-bottom: 8px; }
+.dz-text { font-size: 14px; color: #999; line-height: 1.6; }
 
-.dropzone-text {
-    font-size: 14px;
-    color: #999;
-    line-height: 1.6;
-}
-
-.import-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.import-btn {
+.btn-import {
     display: block;
     width: 100%;
     padding: 12px;
-    border: 1px solid #d9d9d9;
+    border: none;
     border-radius: 10px;
-    background: #fff;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.import-btn:hover {
-    background: #f5f5f5;
-}
-
-.import-btn.primary {
     background: #07c160;
     color: #fff;
-    border-color: #07c160;
+    font-size: 15px;
     font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+.btn-import:hover { background: #06ad56; }
+.btn-import.outline {
+    background: #fff;
+    color: #07c160;
+    border: 2px solid #07c160;
+}
+.btn-import.outline:hover { background: #f0fff4; }
+
+.import-or {
+    text-align: center;
+    color: #ccc;
+    font-size: 13px;
+    margin: 8px 0;
 }
 
-.import-btn.primary:hover {
-    background: #06ad56;
-}
-
-.import-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-#import-direct-import-progress {
+#import-progress {
     width: 100%;
     height: 8px;
-    margin-top: 16px;
+    margin-top: 12px;
     border-radius: 4px;
-    overflow: hidden;
     accent-color: #07c160;
+    display: none;
 }
 
-#direct-import-progress-text {
+#import-progress-text {
     font-size: 12px;
     color: #888;
     margin-top: 4px;
+    display: none;
 }
 
-#direct-import-status {
+#import-status {
     margin-top: 12px;
     font-size: 14px;
     color: #333;
@@ -1178,28 +1153,9 @@ body {
     word-break: break-all;
 }
 
-#direct-import-status.error {
-    color: #e53e3e;
-}
+#import-status.error { color: #e53e3e; }
 
-.import-footer {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid #f0f0f0;
-    font-size: 13px;
-    color: #999;
-}
+/* Show progress elements when they have content */
+#import-progress[value]:not([value="0"]),
+#import-progress-text:not(:empty) { display: block; }
 
-.link-btn {
-    background: none;
-    border: none;
-    color: #576b95;
-    font-size: 13px;
-    cursor: pointer;
-    padding: 0;
-    text-decoration: underline;
-}
-
-.link-btn:hover {
-    color: #3d5a80;
-}

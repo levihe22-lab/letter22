@@ -3,44 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="聊天记录">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#07c160">
-    <link rel="icon" href="data:,">
-    <link rel="apple-touch-icon" href="/icon-192.png">
-    <link rel="manifest" href="/manifest.json">
     <title>微信聊天记录查看器</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/style.css?v=8">
 </head>
 <body>
 
-<div id="app">
-    <!-- 顶部栏 -->
+<!-- 导入界面 -->
+<div id="import-overlay">
+    <div id="import-dialog">
+        <div class="import-icon">💬</div>
+        <h1>聊天记录查看器</h1>
+        <p>导入你的聊天数据包，数据仅保存在本机浏览器中，<br>不会上传到任何服务器。</p>
+
+        <div id="import-dropzone">
+            <div class="dz-icon">📦</div>
+            <div class="dz-text">点击选择 ZIP 数据包<br>或拖拽文件到此处</div>
+        </div>
+
+        <button id="btn-select-zip" class="btn-import">📦 选择 ZIP 文件</button>
+        <input type="file" id="file-zip" accept=".zip,application/zip" style="display:none">
+
+        <div class="import-or">— 或者 —</div>
+        <button id="btn-select-folder" class="btn-import outline">📁 选择数据文件夹</button>
+        <input type="file" id="file-folder" webkitdirectory multiple style="display:none">
+
+        <progress id="import-progress" max="100" value="0"></progress>
+        <div id="import-progress-text"></div>
+        <div id="import-status"></div>
+    </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
     <div id="topbar">
         <span id="topbar-name">聊天记录</span>
         <div id="topbar-spacer"></div>
         <button id="btn-menu" title="菜单">⋮</button>
     </div>
 
-    <!-- 二级菜单 -->
     <div id="menu-dropdown" style="display:none">
         <div class="menu-item" id="menu-date">📅 日期跳转</div>
         <div class="menu-item" id="menu-search">🔍 搜索记录</div>
     </div>
 
-    <!-- 搜索栏 -->
     <div id="search-bar">
         <input type="text" id="search-input" placeholder="🔍 搜索聊天记录..." autocomplete="off">
         <button id="btn-search-clear" style="display:none">✕</button>
         <button id="btn-search-close" style="display:none">✕</button>
     </div>
 
-    <!-- 搜索状态 -->
     <div id="search-status"></div>
 
-    <!-- 消息区域 -->
     <div id="chat-area">
         <div id="messages-container">
             <div id="load-more" style="display:none">
@@ -94,28 +108,10 @@
     <video id="video-preview" controls playsinline></video>
 </div>
 
-<!-- JSZip CDN (for ZIP import) -->
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
+    onerror="document.getElementById('import-status').textContent='⚠️ 网络连接失败，请检查网络后刷新页面'"></script>
 
-<!-- Data import modules (must load before app.js) -->
-<script src="/direct-import.js?v=2"></script>
-<script src="/vault.js?v=4"></script>
-
-<!-- App -->
-<script src="/app.js?v=6"></script>
-
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(r) { r.unregister(); });
-    }).finally(function() {
-        navigator.serviceWorker.register('/sw.js?v=8').then(function(reg) {
-            console.log('SW v8 OK:', reg.scope);
-        }).catch(function(err) {
-            console.log('SW reg fail:', err);
-        });
-    });
-}
-</script>
+<script src="/import.js?v=1"></script>
+<script src="/app.js?v=7"></script>
 </body>
 </html>
