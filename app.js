@@ -438,7 +438,14 @@ function buildImageBubble(bubble, msg) {
         img.className = 'msg-image';
         img.src = `/api/media/${msg.mediaPath}`;
         img.addEventListener('click', () => openImagePreview(img.src));
-        img.addEventListener('error', () => { img.style.width = '32px'; img.style.height = '32px'; img.style.opacity = '0.4'; });
+        img.addEventListener('error', () => {
+            // Replace broken image with text-sized placeholder
+            const span = document.createElement('span');
+            span.className = 'text';
+            span.textContent = '[图片]';
+            span.style.color = '#999';
+            img.replaceWith(span);
+        });
         bubble.appendChild(img);
     } else {
         const ph = document.createElement('div');
