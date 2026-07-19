@@ -47,7 +47,7 @@
         <div class="menu-item" id="menu-search">🔍 搜索记录</div>
     </div>
 
-    <div id="search-bar">
+    <div id="search-bar" style="display:none">
         <input type="text" id="search-input" placeholder="🔍 搜索聊天记录..." autocomplete="off">
         <button id="btn-search-clear" style="display:none">✕</button>
         <button id="btn-search-close" style="display:none">✕</button>
@@ -66,13 +66,14 @@
     </div>
 </div>
 
-<!-- 搜索结果面板 -->
+<!-- 搜索结果面板 — WeChat 风格全屏搜索 -->
 <div id="search-panel" style="display:none">
     <div id="search-dialog">
         <div id="search-dialog-header">
-            <span id="search-result-title">搜索结果</span>
-            <button id="search-panel-close">✕</button>
+            <input type="text" id="search-panel-input" placeholder="搜索聊天记录" autocomplete="off">
+            <button id="search-panel-cancel">取消</button>
         </div>
+        <div id="search-result-title"></div>
         <div id="search-list"></div>
     </div>
 </div>

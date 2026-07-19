@@ -40,15 +40,13 @@ const dom = {
     menuDropdown: $('#menu-dropdown'),
     menuDate: $('#menu-date'),
     menuSearch: $('#menu-search'),
-    searchInput: $('#search-input'),
+    searchPanelInput: document.getElementById('search-panel-input'),
     searchBar: $('#search-bar'),
-    searchClear: $('#btn-search-clear'),
-    searchClose: $('#btn-search-close'),
     searchStatus: $('#search-status'),
     searchPanel: $('#search-panel'),
     searchList: $('#search-list'),
-    searchPanelClose: $('#search-panel-close'),
     searchResultTitle: $('#search-result-title'),
+    searchCancel: document.getElementById('search-panel-cancel'),
     chatArea: $('#chat-area'),
     messagesList: $('#messages-list'),
     loadMore: $('#load-more'),
@@ -130,13 +128,20 @@ function formatFileSize(bytes) {
 function tokenize(text) {
     const cleaned = String(text).toLowerCase().replace(/[^一-鿿\w]/g, ' ');
     const tokens = new Set();
+    // Single Chinese characters (for single-word search)
+    for (let i = 0; i < cleaned.length; i++) {
+        const ch = cleaned[i];
+        if (ch >= '一' && ch <= '鿿') tokens.add(ch);
+    }
+    // Chinese bigrams (for better precision)
     for (let i = 0; i < cleaned.length - 1; i++) {
         const ch = cleaned[i], next = cleaned[i+1];
         if (ch >= '一' && ch <= '鿿' && next >= '一' && next <= '鿿') {
             tokens.add(ch + next);
         }
     }
-    cleaned.split(/\s+/).filter(w => w.length > 1).forEach(w => tokens.add(w));
+    // English/word tokens (also single chars)
+    cleaned.split(/\s+/).filter(w => w.length >= 1).forEach(w => tokens.add(w));
     return [...tokens];
 }
 
@@ -297,7 +302,7 @@ async function searchMessages(contactId, query) {
                     extra: {},
                 },
             });
-            if (results.length >= 100) break;
+            if (results.length >= 999) break;
         }
 
         // Sort by timestamp descending
@@ -736,8 +741,8 @@ function closeVideoPreview() {
 function clearSearch() {
     state.searchQuery = '';
     state.searchResults = [];
-    dom.searchInput.value = '';
-    dom.searchClear.style.display = 'none';
+    dom.searchPanelInput.value = '';
+    
     hideSearchPanel();
     renderMessages();
 }
@@ -851,8 +856,8 @@ async function jumpToDate(dateStr) {
     state.dateJumped = { date: dateStr, startPage: startPage };
     state.searchQuery = '';
     state.searchResults = [];
-    dom.searchInput.value = '';
-    dom.searchClear.style.display = 'none';
+    dom.searchPanelInput.value = '';
+    
     hideSearchPanel();
 
     try {
@@ -952,12 +957,16 @@ dom.menuDate.addEventListener('click', () => {
 });
 dom.menuSearch.addEventListener('click', () => {
     dom.menuDropdown.style.display = 'none';
-    dom.searchBar.style.display = 'flex';
-    dom.searchInput.focus();
+    state.searchQuery = '';
+    state.searchResults = [];
+    dom.searchPanel.style.display = 'flex';
+    const inp = document.getElementById('search-panel-input');
+    if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 100); }
+    document.getElementById('search-result-title').textContent = '';
+    document.getElementById('search-list').innerHTML = '';
 });
-if (dom.searchClose) dom.searchClose.addEventListener('click', () => {
-    dom.searchBar.style.display = 'none';
-    clearSearch();
+if (dom.searchCancel) dom.searchCancel.addEventListener('click', () => {
+    hideSearchPanel();
 });
 document.addEventListener('click', (e) => {
     if (!dom.btnMenu.contains(e.target) && !dom.menuDropdown.contains(e.target)) {
@@ -1019,9 +1028,9 @@ dom.chatArea.addEventListener('scroll', () => {
 
 // 搜索输入
 let searchTimeout;
-dom.searchInput.addEventListener('input', () => {
-    const query = dom.searchInput.value.trim();
-    dom.searchClear.style.display = query ? 'block' : 'none';
+dom.searchPanelInput.addEventListener('input', () => {
+    const query = dom.searchPanelInput.value.trim();
+    
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
         state.searchQuery = query;
@@ -1039,7 +1048,7 @@ dom.searchInput.addEventListener('input', () => {
 document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
-        dom.searchInput.focus();
+        dom.searchPanelInput.focus();
         if (window.innerWidth <= 600) dom.searchBar.classList.add('visible');
     }
     if (e.key === 'Escape') {
@@ -1048,14 +1057,14 @@ document.addEventListener('keydown', (e) => {
         if (dom.datePanel.style.display === 'flex') hideDatePanel();
         if (dom.searchPanel.style.display === 'flex') hideSearchPanel();
         if (state.searchQuery) clearSearch();
-        dom.searchInput.blur();
+        dom.searchPanelInput.blur();
     }
 });
 
-dom.searchClear.addEventListener('click', clearSearch);
+
 
 // 搜索面板关闭
-dom.searchPanelClose.addEventListener('click', hideSearchPanel);
+
 dom.searchPanel.addEventListener('click', (e) => {
     if (e.target === dom.searchPanel) hideSearchPanel();
 });
