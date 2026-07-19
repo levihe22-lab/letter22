@@ -340,7 +340,7 @@ function renderMessages() {
 
     state.messages.forEach((msg, i) => {
         const showTime = i === 0 || (prevTs !== null && msg.timestamp - prevTs > 180);
-        if (showTime && !state.dateJumped) {
+        if (showTime) {
             const timeDiv = document.createElement('div');
             timeDiv.className = 'time-divider';
             timeDiv.innerHTML = `<span>${formatDateTime(msg.timestamp)}</span>`;
@@ -383,8 +383,19 @@ function createMessageRow(msg, index, isSearchMatch) {
 
     const avatar = document.createElement('img');
     avatar.className = 'msg-avatar';
-    avatar.src = msg.isSender ? 'avatar_me.jpg' : 'avatar_contact.jpg';
     avatar.alt = msg.isSender ? (state.myName || '我') : (state.currentContact?.name || state.currentContact?.remark || 'Ta');
+    // Load via fetch so IndexedDB interceptor can serve it
+    const avatarPath = msg.isSender ? 'avatar_me.jpg' : 'avatar_contact.jpg';
+    fetch(avatarPath).then(r => { if (r.ok) return r.blob(); throw new Error('not found'); })
+        .then(blob => { avatar.src = URL.createObjectURL(blob); })
+        .catch(() => {
+            const isMe = msg.isSender;
+            avatar.src = 'data:image/svg+xml,' + encodeURIComponent(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">' +
+                '<rect width="80" height="80" fill="' + (isMe ? '#07c160' : '#576b95') + '" rx="6"/>' +
+                '<text x="40" y="48" text-anchor="middle" font-size="32" font-family="sans-serif" fill="white">' + (isMe ? '我' : 'Ta') + '</text></svg>'
+            );
+        });
     row.appendChild(avatar);
 
     const bubble = document.createElement('div');
@@ -426,7 +437,7 @@ function buildImageBubble(bubble, msg) {
         img.className = 'msg-image';
         img.src = `/api/media/${msg.mediaPath}`;
         img.addEventListener('click', () => openImagePreview(img.src));
-        img.addEventListener('error', () => { img.style.display = 'none'; });
+        img.addEventListener('error', () => { img.style.width = '32px'; img.style.height = '32px'; img.style.opacity = '0.4'; });
         bubble.appendChild(img);
     } else {
         const ph = document.createElement('div');
